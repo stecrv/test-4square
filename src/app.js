@@ -21,15 +21,25 @@ function errorCall(){
     alert('No data found');
 };
 
-function saveVenue(jqXHR, textStatus, errorThrown){
+function showRes(data, jqXHR, textStatus){
+    console.log(data);
+};
+
+function saveVenue(data, jqXHR, textStatus){
     console.log(arguments);
+    if(data && data.response && data.response.venues.length>0){
+        venue = data.response.venues[0];
+        var ll = venue.location.lat.toFixed(1) + ',' + venue.location.lng.toFixed(1);
+        var urlNearBy = 'https://api.foursquare.com/v2/venues/explore?ll='+ll+'&'+linkQuery;
+        getCall(urlNearBy, null, showRes,errorCall)
+    }
 };
 
 function handleSearch(){
     var val = document.getElementById('search').value;
     if(val){
         var urlVenue = 'https://api.foursquare.com/v2/venues/search?query='+val+'&intent=global&'+linkQuery;
-        getCall(urlVenue, null, errorCall,errorCall);
+        getCall(urlVenue, null, saveVenue,errorCall);
     }
 }
 
@@ -40,7 +50,7 @@ function getCall(url, data, successCB, errorCB, dataType){
         data: data,
         success: function( data, textStatus, jqXHR ){
             console.log(textStatus);
-            if(successCB) successCB(jqXHR, textStatus );
+            if(successCB) successCB(data, jqXHR, textStatus );
         }.bind(this),
         error: function ( jqXHR, textStatus, errorThrown ){
             console.log(textStatus);
