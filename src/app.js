@@ -4,7 +4,8 @@
 //https://api.foursquare.com/v2/venues/search?ll=40.7,-74&client_id=XKKUF5UZT0J2OHBHPXQ2XHVIMDXEJ2UMFUYO4CPHFQ3Q5TA0&client_secret=VKZFNMJRPRIF1VVLMIOKIWCZMKKY2HMSF1BJZCHTOA5H2JUI&v=YYYYMMDD
 
 var venue = null;
-var nearBy = null;
+var nearByList = null;
+var nearByListJson = null;
 var today = new Date();
 var dd = today.getDate();
 var mm = today.getMonth()+1; //January is 0!
@@ -21,8 +22,24 @@ function errorCall(){
     alert('No data found');
 };
 
+function readableVenueList(list){
+    console.log(list);
+    var rHtml = '';
+    for(var i = 0; i< list.length; i++ ){
+        rHtml  += '<li/>' + list[i].venue.name + '</li>';
+    }
+    return '<ul>'+rHtml+'</ul>';
+};
 function showRes(data, jqXHR, textStatus){
     console.log(data);
+    nearByList = data.response;
+
+    document.getElementById('title').innerHTML ='Interesting location in: '+ nearByList.headerFullLocation;
+    resHtml = "No Location found";
+    if(nearByList.groups.length>0 && nearByList.groups[0].items.length>0){
+        document.getElementById('list').innerHTML = readableVenueList(nearByList.groups[0].items);
+    }
+    document.getElementById('resultJson').innerHTML = 'Full json results<pre><code>'+JSON.stringify(nearByList)+'</code></pre>';
 };
 
 function saveVenue(data, jqXHR, textStatus){
@@ -64,3 +81,24 @@ $(document).ready(function(){
         handleSearch()
     });
 });
+function syntaxHighlight(json) {
+    if (typeof json != 'string') {
+        json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
