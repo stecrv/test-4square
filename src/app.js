@@ -34,11 +34,12 @@ function showRes(data, jqXHR, textStatus){
     console.log(data);
     nearByList = data.response;
 
-    document.getElementById('title').innerHTML ='Interesting location in: '+ nearByList.headerFullLocation;
-    resHtml = "No Location found";
+    document.getElementById('title').innerHTML = 'Interesting location in: '+ nearByList.headerFullLocation;
+    var resHtml = "No Location found";
     if(nearByList.groups.length>0 && nearByList.groups[0].items.length>0){
-        document.getElementById('list').innerHTML = readableVenueList(nearByList.groups[0].items);
+        resHtml = readableVenueList(nearByList.groups[0].items);
     }
+    document.getElementById('list').innerHTML =  resHtml;
     document.getElementById('resultJson').innerHTML = 'Full json results<pre><code>'+JSON.stringify(nearByList)+'</code></pre>';
 };
 
@@ -78,6 +79,9 @@ function getCall(url, data, successCB, errorCB, dataType){
 };
 $(document).ready(function(){
     $('#searchGo').click(function(){
+        document.getElementById('title').innerHTML = '';
+        document.getElementById('list').innerHTML = '';
+        document.getElementById('resultJson').innerHTML = '';
         handleSearch()
     });
 });
